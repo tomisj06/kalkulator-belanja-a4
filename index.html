@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <title>Kalkulator Belanja Bahan — Cetak A4</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #0b5ed7;
+      --primary-hover: #094bb0;
+      --border: #d1d5db;
+      --danger: #dc2626;
+      --success-bg: #eff6ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 1.35rem;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .mode-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 0.8fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 680px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 1rem;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.14);
+    }
+
+    .btn-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 9px 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    .btn-print {
+      background: #0f766e;
+      color: #fff;
+    }
+
+    .btn-print:hover {
+      background: #0d5f59;
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--danger);
+      border-color: #fecaca;
+      margin-left: auto;
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+    }
+
+    th {
+      background: #f9fafb;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr {
+      cursor: pointer;
+    }
+
+    tbody tr:hover {
+      background: #f3f4f6;
+    }
+
+    tbody tr.selected {
+      background: #dbeafe;
+    }
+
+    .center { text-align: center; }
+    .right { text-align: right; }
+
+    .summary-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: var(--success-bg);
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .summary-item {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .summary-total {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .print-header, .print-footer {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 15mm;
+      }
+
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .container {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+
+      .card {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin-bottom: 10px;
+      }
+
+      .print-header {
+        display: block;
+        margin-bottom: 12px;
+        border-bottom: 1.5px solid #000;
+        padding-bottom: 8px;
+      }
+
+      .print-header h2 {
+        margin: 0 0 4px;
+        font-size: 15pt;
+      }
+
+      .print-meta {
+        font-size: 9.5pt;
+        color: #333;
+      }
+
+      th, td {
+        border: 1px solid #222;
+        padding: 6px 8px;
+        font-size: 10pt;
+      }
+
+      th {
+        background: #f0f2f5 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .summary-box {
+        background: #fafafa !important;
+        border: 1.5px solid #222;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .summary-total {
+        color: #000;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card no-print">
+      <h1>KALKULATOR BELANJA BAHAN (INPUT MANUAL)</h1>
+      <p class="subtitle">
+        Masukkan nama bahan dan harga secara manual untuk menghitung total belanja, banyaknya jenis barang, dan cetak A4.
+      </p>
+
+      <div class="mode-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="modeSatuPerSatu" checked />
+          Mode Hitung Satu per Satu (Jangan simpan/gabungkan banyak data sekaligus)
+        </label>
+        <span class="subtitle" id="statusModeText">Aktif: 1 perhitungan terakhir</span>
+      </div>
+    </div>
+
+    <div class="card no-print">
+      <div class="form-grid">
+        <div class="field">
+          <label for="namaBahan">Nama Bahan / Barang</label>
+          <input type="text" id="namaBahan" placeholder="Contoh: Semen Portland 50kg" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="hargaBahan">Harga (Rp)</label>
+          <input type="text" id="hargaBahan" inputmode="decimal" placeholder="Contoh: 65000" />
+        </div>
+        <div class="field">
+          <label for="qtyBahan">Jumlah / Qty</label>
+          <input type="text" id="qtyBahan" inputmode="decimal" value="1" />
+        </div>
+      </div>
+
+      <div class="btn-bar">
+        <button type="button" class="btn-primary" id="btnTambah">Hitung Item (Tanpa Simpan Gabungan)</button>
+        <button type="button" class="btn-secondary" id="btnUbah">Ubah Terpilih</button>
+        <button type="button" class="btn-secondary" id="btnHapus">Hapus Terpilih</button>
+        <button type="button" class="btn-print" id="btnCetakA4">Cetak A4</button>
+        <button type="button" class="btn-danger" id="btnReset">Bersihkan / Reset</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="print-header">
+        <h2>REKAP BELANJA BAHAN (KALKULATOR MANUAL)</h2>
+        <div class="print-meta" id="printMeta">Ukuran Kertas: A4 (210 mm × 297 mm)</div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="center" style="width: 52px;">No</th>
+              <th>Jenis / Nama Bahan</th>
+              <th class="right" style="width: 150px;">Harga Satuan</th>
+              <th class="center" style="width: 85px;">Jumlah</th>
+              <th class="right" style="width: 165px;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="tabelBody"></tbody>
+        </table>
+      </div>
+
+      <div class="summary-box" style="margin-top: 12px;">
+        <div class="summary-item" id="lblJenisBarang">Banyaknya Jenis Barang: 0 jenis</div>
+        <div class="summary-total" id="lblTotalBelanja">Total Item Saat Ini: Rp 0,00</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let daftarBelanja = [];
+    let selectedIndex = null;
+
+    const elMode = document.getElementById("modeSatuPerSatu");
+    const elStatusMode = document.getElementById("statusModeText");
+    const elNama = document.getElementById("namaBahan");
+    const elHarga = document.getElementById("hargaBahan");
+    const elQty = document.getElementById("qtyBahan");
+    const elBtnTambah = document.getElementById("btnTambah");
+    const elBtnUbah = document.getElementById("btnUbah");
+    const elBtnHapus = document.getElementById("btnHapus");
+    const elBtnCetak = document.getElementById("btnCetakA4");
+    const elBtnReset = document.getElementById("btnReset");
+    const elTabelBody = document.getElementById("tabelBody");
+    const elLblJenis = document.getElementById("lblJenisBarang");
+    const elLblTotal = document.getElementById("lblTotalBelanja");
+    const elPrintMeta = document.getElementById("printMeta");
+
+    function formatRupiah(angka) {
+      const nilai = Number.isFinite(angka) ? angka : 0;
+      return "Rp " + nilai.toLocaleString("id-ID", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function formatAngkaSingkat(angka) {
+      return Number(angka.toFixed(6)).toString().replace(".", ",");
+    }
+
+    function parseAngka(teks) {
+      let bersih = String(teks || "")
+        .trim()
+        .replace(/rp/gi, "")
+        .replace(/\s+/g, "");
+
+      if (!bersih) return 0;
+
+      if (bersih.includes(",") && bersih.includes(".")) {
+        bersih = bersih.replace(/\./g, "").replace(",", ".");
+      } else if (bersih.includes(",")) {
+        bersih = bersih.replace(",", ".");
+      }
+
+      const hasil = Number(bersih);
+      return Number.isFinite(hasil) ? hasil : NaN;
+    }
+
+    function bacaForm() {
+      const nama = elNama.value.trim();
+      if (!nama) {
+        alert("Nama bahan/barang tidak boleh kosong.");
+        elNama.focus();
+        return null;
+      }
+
+      const harga = parseAngka(elHarga.value);
+      const qty = parseAngka(elQty.value);
+
+      if (Number.isNaN(harga) || Number.isNaN(qty)) {
+        alert("Harga dan jumlah harus berupa angka yang valid.");
+        return null;
+      }
+
+      if (harga < 0 || qty <= 0) {
+        alert("Harga harus >= 0 dan jumlah harus lebih dari 0.");
+        return null;
+      }
+
+      return {
+        nama,
+        harga,
+        qty,
+        subtotal: harga * qty
+      };
+    }
+
+    function bersihkanForm() {
+      selectedIndex = null;
+      elNama.value = "";
+      elHarga.value = "";
+      elQty.value = "1";
+      elNama.focus();
+    }
+
+    function perbaruiTampilan() {
+      const satuPerSatu = elMode.checked;
+      elBtnTambah.textContent = satuPerSatu
+        ? "Hitung Item (Tanpa Simpan Gabungan)"
+        : "+ Tambah ke Daftar";
+      elStatusMode.textContent = satuPerSatu
+        ? "Aktif: 1 perhitungan terakhir"
+        : "Aktif: Mengumpulkan banyak item";
+
+      elTabelBody.innerHTML = "";
+      let totalSemua = 0;
+
+      daftarBelanja.forEach((item, idx) => {
+        totalSemua += item.subtotal;
+        const tr = document.createElement("tr");
+        if (idx === selectedIndex) {
+          tr.classList.add("selected");
+        }
+
+        tr.innerHTML = `
+          <td class="center">${idx + 1}</td>
+          <td>${escapeHtml(item.nama)}</td>
+          <td class="right">${formatRupiah(item.harga)}</td>
+          <td class="center">${formatAngkaSingkat(item.qty)}</td>
+          <td class="right">${formatRupiah(item.subtotal)}</td>
+        `;
+
+        tr.addEventListener("click", () => {
+          selectedIndex = idx;
+          elNama.value = item.nama;
+          elHarga.value = String(item.harga);
+          elQty.value = String(item.qty);
+          perbaruiTampilan();
+        });
+
+        elTabelBody.appendChild(tr);
+      });
+
+      const banyakJenis = daftarBelanja.length;
+      const labelTotal = satuPerSatu ? "Total Item Saat Ini" : "Total Semua Belanjaan";
+      elLblJenis.textContent = `Banyaknya Jenis Barang: ${banyakJenis} jenis`;
+      elLblTotal.textContent = `${labelTotal}: ${formatRupiah(totalSemua)}`;
+    }
+
+    function escapeHtml(teks) {
+      return String(teks)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    elMode.addEventListener("change", () => {
+      if (elMode.checked && daftarBelanja.length > 1) {
+        daftarBelanja = [daftarBelanja[daftarBelanja.length - 1]];
+      }
+      selectedIndex = null;
+      perbaruiTampilan();
+    });
+
+    elBtnTambah.addEventListener("click", () => {
+      const data = bacaForm();
+      if (!data) return;
+
+      if (elMode.checked) {
+        daftarBelanja = [data];
+      } else {
+        daftarBelanja.push(data);
+      }
+
+      bersihkanForm();
+      perbaruiTampilan();
+    });
+
+    elBtnUbah.addEventListener("click", () => {
+      if (selectedIndex === null || !daftarBelanja[selectedIndex]) {
+        alert("Klik salah satu baris pada tabel terlebih dahulu untuk mengubahnya.");
+        return;
+      }
+      const data = bacaForm();
+      if (!data) return;
+
+      daftarBelanja[selectedIndex] = data;
+      bersihkanForm();
+      perbaruiTampilan();
+    });
+
+    elBtnHapus.addEventListener("click", () => {
+      if (selectedIndex === null || !daftarBelanja[selectedIndex]) {
+        alert("Klik salah satu baris pada tabel terlebih dahulu untuk menghapusnya.");
+        return;
+      }
+      daftarBelanja.splice(selectedIndex, 1);
+      bersihkanForm();
+      perbaruiTampilan();
+    });
+
+    elBtnReset.addEventListener("click", () => {
+      if (daftarBelanja.length > 0 && !confirm("Hapus hasil/data yang sedang tampil?")) {
+        return;
+      }
+      daftarBelanja = [];
+      bersihkanForm();
+      perbaruiTampilan();
+    });
+
+    elBtnCetak.addEventListener("click", () => {
+      if (daftarBelanja.length === 0) {
+        alert("Hitung minimal satu item belanjaan sebelum mencetak ke A4.");
+        return;
+      }
+
+      const sekarang = new Date().toLocaleString("id-ID");
+      const modeLabel = elMode.checked
+        ? "Satu per Satu (Non-Gabungan)"
+        : "Kumpulan Daftar Belanja";
+      elPrintMeta.textContent = `Ukuran Kertas: A4 (210 mm × 297 mm) | Mode: ${modeLabel} | Dicetak: ${sekarang}`;
+      window.print();
+    });
+
+    elNama.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        elHarga.focus();
+      }
+    });
+
+    [elHarga, elQty].forEach((input) => {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          elBtnTambah.click();
+        }
+      });
+    });
+
+    perbaruiTampilan();
+  </script>
+</body>
+</html>
